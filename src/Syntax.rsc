@@ -20,17 +20,42 @@ syntax Question
 // and use C/Java style precedence rules (look it up on the internet)
 syntax Expr 
   = Id \ "true" \ "false" // true/false are reserved keywords.
-  ;
+  |  	// unary plus
+  |		// unary minus
+  |		// logical not
+  >		// multiplication
+  |		// division
+  >		// addition
+  |		// subtraction
+  >		// greater than
+  |		// greater-equal than
+  |		// less than
+  |		// less-equal than
+  >		// equality
+  |		// inequality
+  >		// logical and
+  >		// logical or
+  |		// literal
+ ;
   
 syntax Type
-  = ;  
+  = Str
+  | Int
+  | Bool
+ ;
   
-lexical Str = ;
+lexical Str = [\"][!\"]*[\"];	// opening quote followed by non-quotes, followed by closing quote
 
 lexical Int 
-  = ;
+ = [1-9][0-9]*		// positive integral
+ | [0]				// zero
+ | [\-][1-9][0-9]*	// negative integral
+;
 
-lexical Bool = ;
+lexical Bool
+ = "true"
+ | "false"
+;
 
 
 
