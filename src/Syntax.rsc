@@ -19,29 +19,42 @@ syntax Question
 // Think about disambiguation using priorities and associativity
 // and use C/Java style precedence rules (look it up on the internet)
 syntax Expr 
-  = Id \ "true" \ "false" // true/false are reserved keywords.
-  |  	// unary plus
-  |		// unary minus
-  |		// logical not
-  >		// multiplication
-  |		// division
-  >		// addition
-  |		// subtraction
-  >		// greater than
-  |		// greater-equal than
-  |		// less than
-  |		// less-equal than
-  >		// equality
-  |		// inequality
-  >		// logical and
-  >		// logical or
-  |		// literal
+  = Id \ Reserved   		// relative complement, i.e. any Id, but not reserved ones
+  | Str literal
+  |	Int literal
+  | Bool literal
+  > "(" Expr ")"	        // parentheses
+  | right (
+     "+" Expr               // unary plus
+  |	 "-" Expr               // unary minus
+  |	 "!" Expr               // logical not
+  )
+  >	left (
+	Expr "*" Expr           // multiplication
+  |	Expr "/" Expr	        // division
+  )
+  >	left (
+	Expr "+" Expr	        // addition
+  |	Expr "-" Expr           // subtraction
+  )
+  >	left (
+    Expr "\>" Expr	        // greater than
+  |	Expr "\>=" Expr         // greater-equal than
+  |	Expr "\<" Expr          // less than
+  |	Expr "\<=" Expr         // less-equal than
+  )
+  >	left (
+	Expr "==" Expr	        // equality
+  |	Expr "!=" Expr          // inequality
+  )
+  >	left Expr "&&" Expr     // logical and
+  >	left Expr "||" Expr	    // logical or
  ;
   
 syntax Type
-  = Str
-  | Int
-  | Bool
+  = "string"
+  | "int"
+  | "bool"
  ;
   
 lexical Str = [\"][!\"]*[\"];	// opening quote followed by non-quotes, followed by closing quote
@@ -56,6 +69,16 @@ lexical Bool
  = "true"
  | "false"
 ;
+
+keyword Reserved
+ = "true"
+ | "false"
+ | "if"
+ | "else"
+ | "str"
+ | "int"
+ | "bool"
+ ;
 
 
 
