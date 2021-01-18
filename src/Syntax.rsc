@@ -12,7 +12,14 @@ start syntax Form
 
 // TODO: question, computed question, block, if-then-else, if-then
 syntax Question
-  = 
+  = Str + Id + ":" + Type			// Basic questions
+									// Condition guarded, if-then
+  | "if" + "(" + Expr + ")" + "{" + Question* + "}"
+									// if-then-else
+  | "if" + "(" + Expr + ")" + "{" + Question* + "}" + "else" + "{" + Question* + "}"
+									// computed question
+  | Str + Id + ":" + Type + "=" + Expr
+  | "{" + Question* + "}"			// block
   ; 
 
 // TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
