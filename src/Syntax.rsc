@@ -14,7 +14,7 @@ start syntax Form
 
 // TODO: question, computed question, block, if-then-else, if-then
 syntax Question
-  = "{" Question* "}"			// block
+  = "{" Question* questions "}"			// block
   | Str question Id answer ":" Type	answer_type		// Basic questions
 									// Condition guarded, if-then
   | "if" "(" Expr guard ")" "{" Question* if_questions"}"
