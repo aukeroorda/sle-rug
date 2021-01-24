@@ -3,23 +3,25 @@ module Syntax
 extend lang::std::Layout;
 extend lang::std::Id;
 
+import IO;
+
 /*
  * Concrete syntax of QL
  */
 
 start syntax Form 
-  = "form" Id "{" Question* "}"; 
+  = "form" Id form_id "{" Question* questions "}"; 
 
 // TODO: question, computed question, block, if-then-else, if-then
 syntax Question
-  = Str + Id + ":" + Type			// Basic questions
+  = "{" Question* "}"			// block
+  | Str Id ":" Type			// Basic questions
 									// Condition guarded, if-then
-  | "if" + "(" + Expr + ")" + "{" + Question* + "}"
+  | "if" "(" Expr ")" "{" Question* "}"
 									// if-then-else
-  | "if" + "(" + Expr + ")" + "{" + Question* + "}" + "else" + "{" + Question* + "}"
+  | "if" "(" Expr ")" "{" Question* "}" "else" "{" Question* "}"
 									// computed question
-  | Str + Id + ":" + Type + "=" + Expr
-  | "{" + Question* + "}"			// block
+  | Str Id ":" Type "=" Expr
   ; 
 
 // TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
@@ -64,7 +66,7 @@ syntax Type
   | "bool"
  ;
   
-lexical Str = [\"][!\"]*[\"];	// opening quote followed by non-quotes, followed by closing quote
+lexical Str = "\"" ![\"]*  "\"";	// opening quote followed by non-quotes, followed by closing quote
 
 lexical Int 
  = [1-9][0-9]*		// positive integral
@@ -87,5 +89,12 @@ keyword Reserved
  | "bool"
  ;
 
+void printIds(start[Form] m) {
+  visit(m) {
+    case Id x: println(x);
+    case Str x: println("str: <x>");
+    case (Expr)`<Expr lhs> * <Expr rhs>`: println("Expr lhs <lhs> lt rhs <rhs>");
+  }
+}
 
 
