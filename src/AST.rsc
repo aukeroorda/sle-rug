@@ -8,14 +8,14 @@ module AST
  */
 
 data AForm(loc src = |tmp:///|)
-  = form(str name, list[AQuestion] questions)
+  = form(str form_id, list[AQuestion] questions)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
-  = question(str label, AId var, AType t)
+  = question(str question, AId answer, AType answer_type)
   | ifthen(AExpr guard, list[AQuestion] questions)
   | ifthenelse(AExpr guard, list[AQuestion] then_questions, list[AQuestion] else_questions)
-  | computed_question(str label, AId var, AType t, AExpr computation)
+  | computed_question(str question, AId answer, AType answer_type, AExpr answer_value)
   ; 
 
 data AExpr(loc src = |tmp:///|)

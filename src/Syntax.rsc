@@ -15,13 +15,13 @@ start syntax Form
 // TODO: question, computed question, block, if-then-else, if-then
 syntax Question
   = "{" Question* "}"			// block
-  | Str Id ":" Type			// Basic questions
+  | Str question Id answer ":" Type	answer_type		// Basic questions
 									// Condition guarded, if-then
-  | "if" "(" Expr ")" "{" Question* "}"
+  | "if" "(" Expr guard ")" "{" Question* if_questions"}"
 									// if-then-else
-  | "if" "(" Expr ")" "{" Question* "}" "else" "{" Question* "}"
+  | "if" "(" Expr guard ")" "{" Question* if_questions"}" "else" "{" Question* else_questions "}"
 									// computed question
-  | Str Id ":" Type "=" Expr
+  | Str question Id answer ":" Type answer_type "=" Expr answer_expr
   ; 
 
 // TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
@@ -62,8 +62,8 @@ syntax Expr
   
 syntax Type
   = "string"
-  | "int"
-  | "bool"
+  | "integer"
+  | "boolean"
  ;
   
 lexical Str = "\"" ![\"]*  "\"";	// opening quote followed by non-quotes, followed by closing quote
@@ -93,6 +93,7 @@ void printIds(start[Form] m) {
   visit(m) {
     case Id x: println(x);
     case Str x: println("str: <x>");
+    case Expr x: println("expr found: <x>");
     case (Expr)`<Expr lhs> * <Expr rhs>`: println("Expr lhs <lhs> lt rhs <rhs>");
   }
 }
