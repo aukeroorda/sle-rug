@@ -12,12 +12,15 @@ data AForm(loc src = |tmp:///|)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
-  = question(str question, AId answer, AType answer_type)
-  | block(list[AQuestion] questions)
-  | ifthen(AExpr guard, list[AQuestion] questions)
-  | ifthenelse(AExpr guard, list[AQuestion] then_questions, list[AQuestion] else_questions)
-  | computed_question(str question, AId answer, AType answer_type, AExpr answer_value)
-  ; 
+  = question(str question, AId answer_ref, AType answer_type)
+  | computed_question(str question, AId answer_ref, AType answer_type, AExpr answer_value)
+  | ifthen(AExpr guard, ABlock then_questions_block)
+  | ifthenelse(AExpr guard, ABlock then_questions_block, ABlock else_questions_block)
+  ;
+
+data ABlock(loc src = |tmp:///|)
+  =  block(list[AQuestion] questions)
+  ;
 
 data AExpr(loc src = |tmp:///|)
   = ref(AId id)

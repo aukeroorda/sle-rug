@@ -12,21 +12,20 @@ import IO;
 start syntax Form 
   = "form" Id form_id "{" Question* questions "}"; 
 
-// TODO: question, computed question, block, if-then-else, if-then
-syntax Question
-  = "{" Question* questions "}"			// block
-  | Str question Id answer ":" Type	answer_type		// Basic questions
-									// Condition guarded, if-then
-  | "if" "(" Expr guard ")" "{" Question* if_questions"}"
-									// if-then-else
-  | "if" "(" Expr guard ")" "{" Question* if_questions"}" "else" "{" Question* else_questions "}"
-									// computed question
-  | Str question Id answer ":" Type answer_type "=" Expr answer_expr
+syntax Question =
+	// Basic questions
+    Str question Id answer_ref ":" Type	answer_type
+	// Condition guarded, if-then
+  | "if" "(" Expr guard ")" Block if_questions_block
+	// if-then-else
+  | "if" "(" Expr guard ")" Block if_questions_block "else" Block else_questions_block 
+	// computed question
+  | Str question Id answer_ref ":" Type answer_type "=" Expr answer_expr
   ; 
 
-// TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
-// Think about disambiguation using priorities and associativity
-// and use C/Java style precedence rules (look it up on the internet)
+syntax Block
+ = "{" Question* questions "}";
+
 syntax Expr 
   = Id \ Reserved   		// relative complement, i.e. any Id, but not reserved ones
   | Str literal
@@ -84,17 +83,24 @@ keyword Reserved
  | "false"
  | "if"
  | "else"
- | "str"
- | "int"
- | "bool"
+ | "string"
+ | "integer"
+ | "boolean"
  ;
+ 
+// based on http://tutor.rascal-mpl.org/Recipes/Languages/Pico/Syntax/Syntax.html#/Recipes/Languages/Pico/Syntax/Syntax.html
+layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
+lexical WhitespaceAndComment 
+   = [\ \t\n\r]
+   //| @category="Comment" "//" ![\n]* $	// EOL-style comments
+   ;
 
 void printIds(start[Form] m) {
   visit(m) {
     case Id x: println(x);
     case Str x: println("str: <x>");
     case Expr x: println("expr found: <x>");
-    case (Expr)`<Expr lhs> * <Expr rhs>`: println("Expr lhs <lhs> lt rhs <rhs>");
+    case (Expr)`<Expr lhs> * <Expr rhs>`: println("Expr lhs <lhs> multiplied by rhs <rhs>");
   }
 }
 

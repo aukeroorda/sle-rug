@@ -1,10 +1,10 @@
 form TestForm {
-	"Does it work?" does_work: bool
+	"Does it work?" does_work: boolean
 	"Whats the text?" text: string
-	"And a number?" number: int
-	"Another number please" num2: int
+	"And a number?" number: integer
+	"Another number please" num2: integer
 	
 	if ( number * num2 ){
-		"It does" wellesnietes: bool
+		"It does" wellesnietes: boolean
 	}
 }
