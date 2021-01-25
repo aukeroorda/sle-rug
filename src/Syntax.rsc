@@ -18,9 +18,9 @@ syntax Question =
 	// computed question
   | computed_question: Str question Id answer_ref ":" Type answer_type "=" Expr answer_expr
 	// Condition guarded, if-then
-  | ifthen: "if" "(" Expr guard ")" Block if_questions_block
+  | ifthen: "if" "(" Expr guard ")" Block then_questions_block
 	// if-then-else
-  | ifthenelse: "if" "(" Expr guard ")" Block if_questions_block "else" Block else_questions_block 
+  | ifthenelse: "if" "(" Expr guard ")" Block then_questions_block "else" Block else_questions_block 
   ; 
 
 syntax Block

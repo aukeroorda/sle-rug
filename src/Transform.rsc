@@ -29,6 +29,14 @@ import AST;
  */
  
 AForm flatten(AForm f) {
+
+	//f = visit (f) {
+	//	case question(question, answer_ref, answer_type) =>
+	//		ifthen(AExpr(\bool(true)), question, answer, answer_type)
+	//	case ifthen(guard, then_questions_block) =>
+	//		[ifthen(guard, q.question, q.answer_ref, answer_type) | 
+	//			question()]
+	//};
   return f; 
 }
 
