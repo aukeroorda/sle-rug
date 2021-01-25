@@ -23,25 +23,43 @@ AForm cst2ast(Form f) {
   return form("<f.form_id>", [cst2ast(q) | q <- f.questions], src=f@\loc); 
 }
 
-AQuestion cst2ast(q:(Question)`<Str question> <Id answer_ref> : <Type answer_type>`)
- = question("<question>", id("<answer_ref>", src=answer_ref@\loc), cst2ast(answer_type), src=q@\loc);
+AQuestion cst2ast(Question q){
+	if (q is question){
+		return question("<q.question>", id("<q.answer_ref>", src=q.answer_ref@\loc), cst2ast(q.answer_type), src=q@\loc);
+	}
+	
+	if (q is computed_question) {
+		return computed_question("<q.question>", id("<q.answer_ref>", src=q.answer_ref@\loc), cst2ast(q.answer_type), cst2ast(q.answer_expr), src=q@\loc);
+	}
+	
+	if (q is ifthen) {
+		return ifthen(cst2ast(q.guard), cst2ast(q.then_questions_block), src=q@\loc);
+	}
+	
+	if (q is ifthenelse) {
+		return ifthenelse(cst2ast(q.guard), cst2ast(q.then_question_block), cst2ast(q.else_question_block), src=q@\loc);
+	}
+}
+//
+//AQuestion cst2ast(q:(Question)`<Str question> <Id answer_ref> : <Type answer_type>`)
+// = question("<question>", id("<answer_ref>", src=answer_ref@\loc), cst2ast(answer_type), src=q@\loc);
+//
+//AQuestion cst2ast(q:(Question)`<Str question> <Id answer_ref> : <Type answer_type> = <Expr answer_expr>`)
+// = computed_question("<question>", id("<answer_ref>", src=answer_ref@\loc), cst2ast(answer_type), cst2ast(answer_expr), src=q@\loc);
+//
+//AQuestion cst2ast(q:(Question)`if ( <Expr guard> ) <ABlock then_questions_block>`)
+// = ifthen(cst2ast(guard), cst2ast(then_questions_block), src=q@\loc);
+//
+//AQuestion cst2ast(q:(Question)`if ( <Expr guard> ) <ABlock then_questions_block> else <ABlock else_questions_block>`)
+// = ifthenelse(cst2ast(guard), cst2ast(if_questions_block), cst2ast(else_questions_block), src=q@\loc);
 
-AQuestion cst2ast(q:(Question)`<Str question> <Id answer_ref> : <Type answer_type> = <Expr answer_expr>`)
- = computed_question("<question>", id("<answer_ref>", src=answer_ref@\loc), cst2ast(answer_type), cst2ast(answer_expr), src=q@\loc);
-
-AQuestion cst2ast(q:(Question)`if ( <Expr guard> ) <ABlock then_questions_block>`)
- = ifthen(cst2ast(guard), cst2ast(then_questions_block), src=q@\loc);
-
-AQuestion cst2ast(q:(Question)`if ( <Expr guard> ) <ABlock then_questions_block> else <ABlock else_questions_block>`)
- = ifthenelse(cst2ast(guard), cst2ast(if_questions_block), cst2ast(else_questions_block), src=q@\loc);
-
-ABlock cst2ast(b:(Block)`{ <AQuestion* questions> }`)
- = block([cst2ast(q) | q <- questions], src=b@\loc);
+ABlock cst2ast(Block b)
+ = block([cst2ast(q) | q <- b.questions], src=b@\loc);
 
 AExpr cst2ast(Expr e) {
   switch (e) {
     case (Expr)`<Id x>`: return ref(id("<x>", src=x@\loc), src=x@\loc);
-    case (Expr)`<Str s>`: return \str("<s>", src=s@\loc);
+    case (Expr)`<Str s>`: return \str("<s>"[1..-1], src=s@\loc);
     case (Expr)`<Int i>`: return \int(toInt("<i>"), src=i@\loc);
     case (Expr)`<Bool b>`: return \bool(fromString("<b>"), src=b@\loc);
     
@@ -75,8 +93,8 @@ AType cst2ast(Type t)
 {
 	switch(t)
 	{
-		case (Type)`string`: \Str(src=t@\loc);
-		case (Type)`integer`: \Int(src=t@\loc);
-		case (Type)`boolean`: \Bool(src=t@\loc);
+		case (Type)`string`: return string(src=t@\loc);
+		case (Type)`integer`: return integer(src=t@\loc);
+		case (Type)`boolean`: return boolean(src=t@\loc);
 	}
 }

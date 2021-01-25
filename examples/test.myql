@@ -3,8 +3,4 @@ form TestForm {
 	"Whats the text?" text: string
 	"And a number?" number: integer
 	"Another number please" num2: integer
-	
-	if ( number * num2 ){
-		"It does" wellesnietes: boolean
-	}
 }

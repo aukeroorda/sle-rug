@@ -14,13 +14,13 @@ start syntax Form
 
 syntax Question =
 	// Basic questions
-    Str question Id answer_ref ":" Type	answer_type
-	// Condition guarded, if-then
-  | "if" "(" Expr guard ")" Block if_questions_block
-	// if-then-else
-  | "if" "(" Expr guard ")" Block if_questions_block "else" Block else_questions_block 
+    question: Str question Id answer_ref ":" Type answer_type
 	// computed question
-  | Str question Id answer_ref ":" Type answer_type "=" Expr answer_expr
+  | computed_question: Str question Id answer_ref ":" Type answer_type "=" Expr answer_expr
+	// Condition guarded, if-then
+  | ifthen: "if" "(" Expr guard ")" Block if_questions_block
+	// if-then-else
+  | ifthenelse: "if" "(" Expr guard ")" Block if_questions_block "else" Block else_questions_block 
   ; 
 
 syntax Block
@@ -89,11 +89,11 @@ keyword Reserved
  ;
  
 // based on http://tutor.rascal-mpl.org/Recipes/Languages/Pico/Syntax/Syntax.html#/Recipes/Languages/Pico/Syntax/Syntax.html
-layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
-lexical WhitespaceAndComment 
-   = [\ \t\n\r]
+//layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
+//lexical WhitespaceAndComment 
+   //= [\ \t\n\r]
    //| @category="Comment" "//" ![\n]* $	// EOL-style comments
-   ;
+   //;
 
 void printIds(start[Form] m) {
   visit(m) {

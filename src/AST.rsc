@@ -49,7 +49,7 @@ data AId(loc src = |tmp:///|)
   = id(str name);
 
 data AType(loc src = |tmp:///|)
-  = \str()
-  | \int()
-  | \bool()
+  = \string()
+  | \integer()
+  | \boolean()
   ;
