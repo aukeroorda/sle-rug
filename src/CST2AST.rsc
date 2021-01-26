@@ -6,6 +6,9 @@ import AST;
 import ParseTree;
 import String;
 
+import Node;
+import List;
+
 /*
  * Implement a mapping from concrete syntax trees (CSTs) to abstract syntax trees (ASTs)
  *
@@ -98,3 +101,58 @@ AType cst2ast(Type t)
 		case (Type)`boolean`: return boolean(src=t@\loc);
 	}
 }
+
+test bool testImplodeExpr() =
+ mult(\int(5), ref(id("Identifier"))) := cst2ast((Expr)`5 * Identifier`);
+
+test bool testOperatorAnd() =
+ and(
+ 	and(
+ 		ref(id("a", src = loc _)), 
+ 		ref(id("b", src = loc _))
+ 	), 
+ 	ref(id("c", src = loc _))
+ ) := cst2ast((Expr)`a && b && c`);
+
+test bool testOperatorAndLeftAssoc() =
+ structurallyEqual(
+ 	and(
+ 		and(
+ 			ref(id("a")), 
+ 			ref(id("b"))
+ 		), 
+ 		ref(id("c"))
+ 	),
+ 	cst2ast((Expr)`a && b && c`)
+ );
+
+bool structurallyEqual(node a, node b) {
+	if (getName(a) != getName(b)) {
+		return false;
+	}
+	
+	list[value] children_a = getChildren(a);
+	list[value] children_b = getChildren(b);
+	
+	if(size(children_a) != size(children_b)) {
+		return false;
+	}
+	
+	for (int i <- [1..size(children_a)]) {
+		value kid_a = children_a[i];
+		value kid_b = children_b[i];
+		
+		if (node n_a := kid_a, node n_b := kid_b) {
+			return structurallyEqual(n_a,n_b);
+		}
+		
+		return kid_a == kid_b;
+	}
+	// Childless nodes
+	return true;
+}
+
+
+
+
+

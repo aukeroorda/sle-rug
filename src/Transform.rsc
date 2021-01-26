@@ -37,6 +37,11 @@ AForm flatten(AForm f) {
 	//		[ifthen(guard, q.question, q.answer_ref, answer_type) | 
 	//			question()]
 	//};
+	
+	// Lastly ensure all top-level questions are if_then_else-guarded questions
+	//f = visit (f) {
+	//	case 
+	//};
   return f; 
 }
 
