@@ -30,7 +30,7 @@ RefGraph resolve(AForm f) {
 	definitions = gefs(f);
 	references = uses(f);
 	
-	referenced = {ref | ref <- references, ref.def in definitions<1>};
+	referenced = {ref | ref <- references, ref.def in definitions<def>};
 	
 	return <referenced, definitions, referenced o definitions>;
 }
