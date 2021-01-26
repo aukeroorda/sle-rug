@@ -41,7 +41,7 @@ AQuestion cst2ast(Question q){
 	}
 	
 	if (q is ifthenelse) {
-		return ifthenelse(cst2ast(q.guard), cst2ast(q.then_question_block), cst2ast(q.else_question_block), src=q@\loc);
+		return ifthenelse(cst2ast(q.guard), cst2ast(q.then_questions_block), cst2ast(q.else_questions_block), src=q@\loc);
 	}
 }
 //

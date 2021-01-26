@@ -20,7 +20,7 @@ alias TEnv = rel[loc def, str name, str label, Type \type];
 // To avoid recursively traversing the form, use the `visit` construct
 // or deep match (e.g., `for (/question(...) := f) {...}` ) 
 TEnv collect(AForm f)
-  = {<q.src, q.answer_ref.name, q.question, typeOfAType(q.answer_type)> |
+  = {<q.answer_ref.src, q.answer_ref.name, q.question, typeOfAType(q.answer_type)> |
         /AQuestion q := f, q has answer_ref };
 
 set[Message] check(AForm f)
@@ -64,6 +64,10 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   if (q is computed_question){
     msgs += check(q, tenv);
     msgs += check(q.answer_value, tenv, useDef);
+    // Crashes eclipse
+    //for(/AExpr e <- q.answer_value) {
+    //    msgs += check(e, tenv, useDef);
+    //}
     
     Type expr_type = typeOf(q.answer_value, tenv, useDef);
     Type answer_type = typeOfAType(q.answer_type);
@@ -74,6 +78,11 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   if (q is ifthen || q is ifthenelse) {
     msgs += check(q.guard, tenv, useDef);
     
+    // crashes eclipse
+    //for(/AExpr e <- q.guard) {
+    //    msgs += check(e, tenv, useDef);
+    //}
+    
     Type guard_type = typeOf(q.guard, tenv, useDef);
     if (guard_type != tbool()) {
       msgs += error("Guard expression type must be bool", q.guard.src);
@@ -83,17 +92,25 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   return msgs; 
 }
 
+  // Error: same name (answer_ref) but different type
+  // Warning: same label
 set[Message] check(AQuestion q, TEnv tenv) {
   set[Message] msgs = {};
   loc def;
   
   for (t <- tenv) {
-    if(t.label == q.question && t.def != q.src) {
-      if(t.\type != typeOfAType(q.answer_type)) {
-        msgs += {error("Duplicate declaration with different type", q.src)};
-      } else {
-        msgs += {warning("Duplicate declaration with same label", q.src)};
-      }
+  	// When in the same location
+  	if (t.def == q.answer_ref.src) {
+  		continue;
+  	}
+  	
+  	// Same name and different type
+    if(t.name == q.answer_ref.name && t.\type != typeOfAType(q.answer_type)) {
+        msgs += {error("Duplicate name with different type", q.answer_ref.src)};
+    } 
+    // Same label (and name)
+	if (t.label == q.question && t.name == q.answer_ref.name) {
+        msgs += {warning("Duplicate ....... declaration with same label", q.src)};
     }
   }
   
@@ -178,6 +195,8 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
       return tint();
     case \bool(bool boolean):
       return tbool();
+    case par(AExpr op):
+      return typeOf(op, tenv, useDef);
     case uplus(AExpr op):
       if (typeOf(op, tenv, useDef) == tint() ) {
         return tint();

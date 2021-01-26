@@ -1,6 +1,6 @@
 form TestForm {
-	"Does it work?" does_work: boolean
-	"Whats the text?" text: string
-	"And a number?" number: integer
-	"Another number please" num2: integer
+  "Is the number between 1 and 10" x_1_10: boolean
+  if (x_1_10) { 
+  
+  }
 }

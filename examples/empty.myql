@@ -1,5 +1,2 @@
 form taxOfficeExample {	
-
-	"" value : integer = 5 * 5
-	
 }
