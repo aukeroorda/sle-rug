@@ -19,6 +19,6 @@ form taxOfficeExample {
       
     "Value residue:"
       valueResidue: integer = 
-        ((sellingPrice - privateDebt) * true)
+        ((sellingPrice - "hello") * true)
   }
 }
