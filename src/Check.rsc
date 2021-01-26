@@ -64,7 +64,7 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   if (q is computed_question){
     msgs += check(q, tenv);
 
-    for(/AExpr e <- q.answer_value) {
+    for(/AExpr e <- q) {
         msgs += check(e, tenv, useDef);
     }
     
@@ -75,7 +75,7 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
     }
   }
   if (q is ifthen || q is ifthenelse) {   
-    for(/AExpr e <- q.guard) {
+    for(/AExpr e <- q) {
         msgs += check(e, tenv, useDef);
     }
     
@@ -106,7 +106,7 @@ set[Message] check(AQuestion q, TEnv tenv) {
     } 
     // Same label (and name)
 	if (t.label == q.question && t.name == q.answer_ref.name) {
-        msgs += {warning("Duplicate ....... declaration with same label", q.src)};
+        msgs += {warning("Duplicate declaration with same label", q.src)};
     }
   }
   
@@ -194,72 +194,125 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
     case par(AExpr op):
       return typeOf(op, tenv, useDef);
     case uplus(AExpr op):
-      if (typeOf(op, tenv, useDef) == tint() ) {
         return tint();
-      } // else tunknown()
     case uminus(AExpr op):
-      if (typeOf(op, tenv, useDef) == tint() ) {
         return tint();
-      } // else tunkown()
     case logic_not(AExpr op):
-      if (typeOf(op, tenv, useDef) == tbool() ){
         return tbool();
-      } // else tunknown()
     case mult(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tint();
-      } // else tunknown()
     case div(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tint();
-      } // else tunknown()
     case add(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tint();
-      } // else tunknown()
     case subt(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tint();
-      } // else tunknown()
     
     case gt(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tbool();
-      } // else tunknown()
     case ge(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tbool();
-      } // else tunknown()
     case lt(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tbool();
-      } // else tunknown()
     case le(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
         return tbool();
-      } // else tunknown()
       
     case eq(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == typeOf(rhs, tenv, useDef) ) {
         return tbool();
-      } // else tunknown()
     case neq(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == typeOf(rhs, tenv, useDef) ) {
         return tbool();
-      } // else tunknown()
       
     case and(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tbool() && typeOf(rhs, tenv, useDef) == tbool() ) {
         return tbool();
-      } // else tunknown()
     case or(AExpr lhs, AExpr rhs):
-      if (typeOf(lhs, tenv, useDef) == tbool() && typeOf(rhs, tenv, useDef) == tbool() ) {
         return tbool();
-      } // else tunknown()
     // etc.
   }
   return tunknown(); 
 }
+//
+//Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
+//  switch (e) {
+//    case ref(id(_, src = loc u)):
+//      // if we find it in useDef, then use the loc to get the type from TEnc  
+//      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
+//        return t;
+//      }
+//    case \str(str string):
+//      return tstr();
+//    case \int(int integer):
+//      return tint();
+//    case \bool(bool boolean):
+//      return tbool();
+//    case par(AExpr op):
+//      return typeOf(op, tenv, useDef);
+//    case uplus(AExpr op):
+//      if (typeOf(op, tenv, useDef) == tint() ) {
+//        return tint();
+//      } // else tunknown()
+//    case uminus(AExpr op):
+//      if (typeOf(op, tenv, useDef) == tint() ) {
+//        return tint();
+//      } // else tunkown()
+//    case logic_not(AExpr op):
+//      if (typeOf(op, tenv, useDef) == tbool() ){
+//        return tbool();
+//      } // else tunknown()
+//    case mult(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tint();
+//      } // else tunknown()
+//    case div(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tint();
+//      } // else tunknown()
+//    case add(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tint();
+//      } // else tunknown()
+//    case subt(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tint();
+//      } // else tunknown()
+//    
+//    case gt(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tbool();
+//      } // else tunknown()
+//    case ge(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tbool();
+//      } // else tunknown()
+//    case lt(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tbool();
+//      } // else tunknown()
+//    case le(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tint() && typeOf(rhs, tenv, useDef) == tint() ) {
+//        return tbool();
+//      } // else tunknown()
+//      
+//    case eq(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == typeOf(rhs, tenv, useDef) ) {
+//        return tbool();
+//      } // else tunknown()
+//    case neq(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == typeOf(rhs, tenv, useDef) ) {
+//        return tbool();
+//      } // else tunknown()
+//      
+//    case and(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tbool() && typeOf(rhs, tenv, useDef) == tbool() ) {
+//        return tbool();
+//      } // else tunknown()
+//    case or(AExpr lhs, AExpr rhs):
+//      if (typeOf(lhs, tenv, useDef) == tbool() && typeOf(rhs, tenv, useDef) == tbool() ) {
+//        return tbool();
+//      } // else tunknown()
+//    // etc.
+//  }
+//  return tunknown(); 
+//}
 
 /* 
  * Pattern-based dispatch style:

@@ -1,6 +1,6 @@
 form TestForm {
   "Is the number between 1 and 10" x_1_10: boolean
   if (x_1_10) { 
-  	"Do you compute?" val : integer = 5 * x_1_10
+  	"Do you compute?" val : boolean = 5 * x_1_10
   }
 }
