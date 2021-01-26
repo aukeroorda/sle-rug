@@ -23,6 +23,9 @@ TEnv collect(AForm f) {
   			/AQuestion q := f, q has answer_ref }; 
 }
 
+set[Message] check(AForm f)
+ = check(f, collect(f), resolve(f).useDef);
+
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
   
