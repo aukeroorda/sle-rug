@@ -63,11 +63,10 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   }
   if (q is computed_question){
     msgs += check(q, tenv);
-    msgs += check(q.answer_value, tenv, useDef);
-    // Crashes eclipse
-    //for(/AExpr e <- q.answer_value) {
-    //    msgs += check(e, tenv, useDef);
-    //}
+
+    for(/AExpr e <- q.answer_value) {
+        msgs += check(e, tenv, useDef);
+    }
     
     Type expr_type = typeOf(q.answer_value, tenv, useDef);
     Type answer_type = typeOfAType(q.answer_type);
@@ -75,13 +74,10 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
       msgs += error("Expression type does not match answer type", q.answer_value.src);
     }
   }
-  if (q is ifthen || q is ifthenelse) {
-    msgs += check(q.guard, tenv, useDef);
-    
-    // crashes eclipse
-    //for(/AExpr e <- q.guard) {
-    //    msgs += check(e, tenv, useDef);
-    //}
+  if (q is ifthen || q is ifthenelse) {   
+    for(/AExpr e <- q.guard) {
+        msgs += check(e, tenv, useDef);
+    }
     
     Type guard_type = typeOf(q.guard, tenv, useDef);
     if (guard_type != tbool()) {
