@@ -11,8 +11,12 @@ form taxOfficeExample {
   if (hasSodHouse) {
     "What was the selling price?"
       sellingPrice: boolean
+      
     "Private debts for the sold house:"
       privateDebt: integer
+    "Private debts for the sold house:"
+      privateDebt: integer
+      
     "Value residue:"
       valueResidue: integer = 
         ((sellingPrice - privateDebt) * true)

@@ -4,6 +4,8 @@ import AST;
 import Resolve;
 import Message; // see standard library
 
+import Set;
+
 data Type
   = tint()
   | tbool()
@@ -17,11 +19,26 @@ alias TEnv = rel[loc def, str name, str label, Type \type];
 // To avoid recursively traversing the form, use the `visit` construct
 // or deep match (e.g., `for (/question(...) := f) {...}` ) 
 TEnv collect(AForm f) {
-  return {}; 
+  return {<q.src, q.answer_ref.name, q.question, typeOf(q.answer_type)> |
+  			/AQuestion q := f, q has answer_ref }; 
 }
 
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
-  return {}; 
+  set[Message] msgs = {};
+  
+  for(/AQuestion q := f, q has answer_ref) {
+  	if(size(useDef[q.answer_ref.src]) > 1) {
+  	 	msgs += {error("Duplicate answer variable name", q.answer_ref.src)};
+  	}
+  }
+  
+  for(/AId id := f){
+  	if(id.name notin tenv<name>) {
+  		msgs += {error("Reference to undeclared value", id.src)};
+  	}
+  }
+
+  return msgs; 
 }
 
 // - produce an error if there are declared questions with the same name but different types.
@@ -69,6 +86,15 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
  * default Type typeOf(AExpr _, TEnv _, UseDef _) = tunknown();
  *
  */
+ 
+ Type typeOf(AType atype) {
+ 	switch(atype) {
+ 		case string(): return tstr();
+ 		case integer(): return tint();
+ 		case boolean(): return tbool();
+ 		default: return tunknown();
+ 	}
+ }
  
  
 
