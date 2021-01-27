@@ -30,6 +30,45 @@ import AST;
  
 AForm flatten(AForm f) {
 
+	// First resolve all nested ifthen(else) statements
+//	f = outermost visit(f) {
+//		case ifthen(
+//				outer_guard, 
+//				block(
+//					ifthen(
+//						inner_guard,
+//						then_questions_block
+//					)
+//				)
+//			) => ifthen(and(outer_guard, inner_guard), then_questions_block)
+//
+//		case ifthen(
+//				outer_guard,
+//				block(
+//					ifthenelse(
+//						inner_guard,
+//						then_questions_block,
+//						else_questions_block
+//					)
+//				)
+//			) => ifthen(and(outer_guard, inner_guard), then_questions_block) +
+//				 ifthen(not(inner_guard), else_questions_block)
+//				 
+//		//case ifthenelse(outer_guard, outer_block)
+//		
+//	}
+
+	AExpr bool_true = \bool(true);
+	// flatten questions
+	f = form(f.form_id, ([] | it + flatten(q, bool_true) | AQuestion q <- f.questions));
+
+	// Flatten expressions
+	f = innermost visit(f) {
+		case and(\bool(true), x) => x
+		case and(x, \bool(true)) => x
+	}
+	
+	// Flatten expressions
 	//f = visit (f) {
 	//	case question(question, answer_ref, answer_type) =>
 	//		ifthen(AExpr(\bool(true)), question, answer, answer_type)
@@ -43,6 +82,24 @@ AForm flatten(AForm f) {
 	//	case 
 	//};
   return f; 
+}
+
+list[AQuestion] flatten(AQuestion q, AExpr cond) {
+	list[AQuestion] new_qs = [];
+	
+	if (q is question || q is computed_question) {
+		return [ifthen(cond, block([q]))];
+	}
+	
+	
+	if (q has then_questions_block) {
+		new_qs += ([] | it + flatten(nested_q, and(cond, q.guard)) | nested_q <- q.then_questions_block.questions);
+	}
+	if (q has else_questions_block) {
+		new_qs += ([] | it + flatten(nested_q, and(cond, q.guard)) | nested_q <- q.else_questions_block.questions);
+	}
+	
+	return new_qs;
 }
 
 /* Rename refactoring:

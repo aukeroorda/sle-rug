@@ -106,20 +106,20 @@ Value eval(AExpr e, VEnv venv) {
     case log_not(AExpr op): return vbool(!eval(op, venv));
     
     case mult(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n * eval(rhs, venv).n);
-    case div(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv) / eval(rhs, venv));
-    case add(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv) + eval(rhs, venv));
-    case subt(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv) - eval(rhs, venv));
+    case div(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n / eval(rhs, venv).n);
+    case add(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n + eval(rhs, venv).n);
+    case subt(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n - eval(rhs, venv).n);
     
-    case gt(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) > eval(rhs, venv));
-    case ge(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) >= eval(rhs, venv));
-    case lt(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) < eval(rhs, venv));
-    case le(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) <= eval(rhs, venv));
+    case gt(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n > eval(rhs, venv).n);
+    case ge(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n >= eval(rhs, venv).n);
+    case lt(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n < eval(rhs, venv).n);
+    case le(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n <= eval(rhs, venv).n);
     
     case eq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) == eval(rhs, venv));
     case neq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) != eval(rhs, venv));
     
-    case and(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) && eval(rhs, venv));
-    case or(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) || eval(rhs, venv));
+    case and(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b && eval(rhs, venv).b);
+    case or(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b || eval(rhs, venv).b);
     
     // etc.
     

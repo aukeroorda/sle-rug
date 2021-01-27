@@ -3,5 +3,8 @@ form TestForm {
   "How much money?" money: integer
   if (x_1_10) { 
   	"Do you compute?" val : integer = 5 * money
+  	if(true) {
+  		"Is this flattened?" yesno : boolean
+  	}
   }
 }

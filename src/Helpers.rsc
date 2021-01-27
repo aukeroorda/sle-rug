@@ -9,6 +9,7 @@ import AST;
 import CST2AST;
 
 import Resolve;
+import Transform;
 import Check;
 import Eval;
 
@@ -26,6 +27,9 @@ AForm get_ast()
 
 RefGraph resolve_() =
 	resolve(get_ast());
+	
+AForm flatten_() =
+	flatten(get_ast());
 	
 set[Message] check_() =
 	check(get_ast());
