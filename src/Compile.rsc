@@ -1,5 +1,6 @@
 module Compile
 
+import List;
 import AST;
 import Resolve;
 import IO;
@@ -21,7 +22,7 @@ import lang::html5::DOM; // see standard library
  */
 
 /* Plan:
-	form -> htmlForm
+	form -> form node, name as page header
 	if guard -> add header to fieldset with  <legend>guard</legend>
 	questionBlock -> fieldset (add attribute "disabled" to disable all questions inside it)
 	
@@ -37,6 +38,9 @@ void compile(AForm f) {
 
 HTML5Node form2html(AForm f) {
   return html(
+  	head(
+  		h1(f.form_id)
+  	),
   	body(
   		form(
   			([] | it + ast2html(q) | q <- f.questions)
@@ -50,8 +54,30 @@ str form2js(AForm f) {
 }
 
 HTML5Node ast2html(AQuestion q) {
-	if (q has question) {
+	if (q is question) {
 		return \div([\label(q.question), input(\type("text"))]);
 	}
-	return br();;
+	if (q is ifthen || q is ifthenelse) {
+		list[HTML5Node] nodes = [];
+		
+		HTML5Node fs_then = fieldset(
+			( legend("then_label")) + 
+			( [] | it + ast2html(q) | AQuestion q <- q.then_questions_block.questions)
+		);
+		fs_then.kids += [disabled("")];
+		nodes += fs_then;
+		
+		if (q is ifthenelse) {
+			HTML5Node fs_else = fieldset(
+				( legend("else_label")) + 
+				( [] | it + ast2html(q) | AQuestion q <- q.else_questions_block.questions)
+				
+			//, disabled("")	// bugs out rendering to html =>  [html5node("legend",["else_label"]),html5node("br",[])] 
+			);
+			nodes += fs_else;
+		}
+		
+		return div(nodes);
+	}
+	return br();
 }
