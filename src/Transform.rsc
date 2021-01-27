@@ -96,7 +96,7 @@ list[AQuestion] flatten(AQuestion q, AExpr cond) {
 		new_qs += ([] | it + flatten(nested_q, and(cond, q.guard)) | nested_q <- q.then_questions_block.questions);
 	}
 	if (q has else_questions_block) {
-		new_qs += ([] | it + flatten(nested_q, and(cond, q.guard)) | nested_q <- q.else_questions_block.questions);
+		new_qs += ([] | it + flatten(nested_q, and(cond, logic_not(q.guard))) | nested_q <- q.else_questions_block.questions);
 	}
 	
 	return new_qs;
