@@ -2,6 +2,7 @@ module Helpers
 
 import ParseTree;
 
+import util::ValueUI;
 import IDE;
 
 import Syntax;
@@ -12,6 +13,7 @@ import Resolve;
 import Transform;
 import Check;
 import Eval;
+import Compile;
 
 // binary
 //loc l = |project://QL/examples/binary.myql|;
@@ -37,5 +39,17 @@ set[Message] check_() =
 VEnv eval_() =
 	eval(get_ast(), input_, initialEnv(get_ast()));
 	
+void compile_() =
+	compile(get_ast());
+	
 void ide() = main();
 
+void t_resolve() = 
+	text(resolve_());
+void t_flatten() = 
+	text(flatten_());
+void t_eval() =
+	text(eval_());
+
+void t_compile() =
+	text(compile_());

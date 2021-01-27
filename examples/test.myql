@@ -6,7 +6,7 @@ form TestForm {
   	if(x_1_10) {
   		"Is this flattened?" yesno : boolean
   	} else {
-  		"Well well well" if_it_isnt_else : boolean = false
+  		"Well well well" if_it_isnt_else : boolean = (5 <= 6)
   	}
   }
 }

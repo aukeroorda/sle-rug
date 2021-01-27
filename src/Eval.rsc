@@ -101,9 +101,9 @@ Value eval(AExpr e, VEnv venv) {
     case \bool(bool boolean): return vbool(boolean);
     case par(AExpr op): return eval(op, venv);
     
-    case uplus(AExpr op): return vint(1 * eval(op, venv));	// essentially a no-op
-    case uminus(AExpr op): return vint(-1 * eval(op, venv));
-    case log_not(AExpr op): return vbool(!eval(op, venv));
+    case uplus(AExpr op): return vint(1 * eval(op, venv).n);	// essentially a no-op
+    case uminus(AExpr op): return vint(-1 * eval(op, venv).n);
+    case logic_not(AExpr op): return vbool(!eval(op, venv).b);
     
     case mult(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n * eval(rhs, venv).n);
     case div(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n / eval(rhs, venv).n);
@@ -115,8 +115,13 @@ Value eval(AExpr e, VEnv venv) {
     case lt(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n < eval(rhs, venv).n);
     case le(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).n <= eval(rhs, venv).n);
     
-    case eq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) == eval(rhs, venv));
-    case neq(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv) != eval(rhs, venv));
+    case eq(AExpr lhs, AExpr rhs): 
+    	return switch(eval(lhs, venv)) {
+    			case \str: vbool(eval(lhs, venv).s == eval(rhs, venv).s);
+    			case \int: vbool(eval(lhs, venv).n == eval(rhs, venv).n);
+    			case \bool: vbool(eval(lhs, venv).b == eval(rhs, venv).b);
+    		}
+    case neq(AExpr lhs, AExpr rhs): return logic_not(eq(lhs, rhs));
     
     case and(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b && eval(rhs, venv).b);
     case or(AExpr lhs, AExpr rhs): return vbool(eval(lhs, venv).b || eval(rhs, venv).b);
