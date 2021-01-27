@@ -29,11 +29,11 @@ AForm cst2ast(Form f) {
 
 AQuestion cst2ast(Question q){
 	if (q is question){
-		return question("<q.question>", id("<q.answer_ref>", src=q.answer_ref@\loc), cst2ast(q.answer_type), src=q@\loc);
+		return question("<q.question>"[1..-1], id("<q.answer_ref>", src=q.answer_ref@\loc), cst2ast(q.answer_type), src=q@\loc);
 	}
 	
 	if (q is computed_question) {
-		return computed_question("<q.question>", id("<q.answer_ref>", src=q.answer_ref@\loc), cst2ast(q.answer_type), cst2ast(q.answer_expr), src=q@\loc);
+		return computed_question("<q.question>"[1..-1], id("<q.answer_ref>", src=q.answer_ref@\loc), cst2ast(q.answer_type), cst2ast(q.answer_expr), src=q@\loc);
 	}
 	
 	if (q is ifthen) {
@@ -100,6 +100,7 @@ AType cst2ast(Type t)
 		case (Type)`string`: return string(src=t@\loc);
 		case (Type)`integer`: return integer(src=t@\loc);
 		case (Type)`boolean`: return boolean(src=t@\loc);
+		default: throw "Unhandled type: <t>";
 	}
 }
 
