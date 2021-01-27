@@ -38,7 +38,9 @@ void compile(AForm f) {
 HTML5Node form2html(AForm f) {
   return html(
   	body(
-  		([] | it + ast2html(q) | q <- f.questions)
+  		form(
+  			([] | it + ast2html(q) | q <- f.questions)
+  		)
   	)
   );
 }
@@ -49,7 +51,7 @@ str form2js(AForm f) {
 
 HTML5Node ast2html(AQuestion q) {
 	if (q has question) {
-	return input(\type("text"), \label(q.question));
+		return \div([\label(q.question), input(\type("text"))]);
 	}
 	return br();;
 }
