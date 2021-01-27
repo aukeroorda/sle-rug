@@ -17,10 +17,7 @@ form taxOfficeExample {
       privateDebt: integer
     "Value residue:"
       valueResidue: integer = sellingPrice - privateDebt
-      
-  }
-  
-  if (hasMaintLoan) {
-  
+  } else {
+  	"Why did you not sell a house?" reason_not_selling_house : string
   }
 }

@@ -18,8 +18,11 @@ import Compile;
 // binary
 //loc l = |project://QL/examples/binary.myql|;
 
+// tax
+loc l = |project://QL/examples/tax.myql|;
+
 // test
-loc l = |project://QL/examples/test.myql|;
+//loc l = |project://QL/examples/test.myql|;
 
 // eval_ input
 Input input_ = input("How much money?", vint(7));

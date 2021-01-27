@@ -50,34 +50,142 @@ HTML5Node form2html(AForm f) {
 }
 
 str form2js(AForm f) {
-  return "";
+	js = "";
+	js += collectVars(f);
+  	return js;
+}
+
+str collectVars(AForm f) {
+	vars = "";
+	for (/AQuestion q := f, q has answer_ref) {
+		vars += "var <q.answer_ref.name> = <atype2jsdefaultvalue(q.answer_type)>;\n";
+	}
+	return vars;
+}
+
+str atype2jsdefaultvalue(AType a) {
+	switch(a) {
+	    case string(): return "\"\"";
+	    case integer(): return "0";
+	    case boolean(): return "false";
+	}
 }
 
 HTML5Node ast2html(AQuestion q) {
 	if (q is question) {
-		return \div([\label(q.question), input(\type("text"))]);
+		return div([abbr(label(q.question), html5attr("title", q.answer_ref.name)), br(), input(atype2html5inputtype(q.answer_type), atype2html5defaultvalue(q.answer_type), id(q.answer_ref.name))]);
+	}
+	if(q is computed_question) {
+		return div([abbr(label(q.question), html5attr("title", q.answer_ref.name)), br(), input(atype2html5inputtype(q.answer_type), atype2html5defaultvalue(q.answer_type), id(q.answer_ref.name), disabled(""))]);
 	}
 	if (q is ifthen || q is ifthenelse) {
 		list[HTML5Node] nodes = [];
 		
+		nodes += h3("if <expr2str(q.guard)>");
 		HTML5Node fs_then = fieldset(
-			( legend("then_label")) + 
-			( [] | it + ast2html(q) | AQuestion q <- q.then_questions_block.questions)
+			( legend("then:")) + 
+			( [] | it + ast2html(q) | AQuestion q <- q.then_questions_block.questions) +
+			( id("<q.guard.src>") ) + 
+			( html5attr("data-guard", expr2str(q.guard)) )
 		);
-		fs_then.kids += [disabled("")];
 		nodes += fs_then;
 		
 		if (q is ifthenelse) {
 			HTML5Node fs_else = fieldset(
-				( legend("else_label")) + 
-				( [] | it + ast2html(q) | AQuestion q <- q.else_questions_block.questions)
-				
-			//, disabled("")	// bugs out rendering to html =>  [html5node("legend",["else_label"]),html5node("br",[])] 
+				( legend("else:")) + 
+				( [] | it + ast2html(q) | AQuestion q <- q.else_questions_block.questions) +
+				( html5attr("data-guard", expr2str(logic_not(q.guard))) )
 			);
 			nodes += fs_else;
 		}
 		
 		return div(nodes);
 	}
-	return br();
+	return hr();
 }
+
+HTML5Attr atype2html5inputtype(AType a) {
+	switch(a) {
+	    case string(): return \type("text");
+	    case integer(): return \type("number");
+	    case boolean(): return \type("checkbox");
+	}
+}
+
+HTML5Attr atype2html5defaultvalue(AType a) {
+	switch(a) {
+	    case string(): return \value("");
+	    case integer(): return \value(0);
+	    case boolean(): return \value(false);
+	}
+}
+
+str expr2str(AExpr e) {
+	switch(e) {
+		case ref(id(str s)): return "<s>";
+		case \bool(bool b): return "<b>";
+		case \str(str s): return "\"<s>\"";
+		case \int(int i): return "<i>";
+		
+		case par(AExpr op):  return "(<expr2str(op)>)";
+	    case uplus(AExpr op): return "+<expr2str(op)>";
+	    case uminus(AExpr op): return "-<expr2str(op)>";
+	    case logic_not(AExpr op): return "!<expr2str(op)>";
+	    
+	    case mult(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> * <expr2str(rhs)>";
+	    case div(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> / <expr2str(rhs)>";
+	    case add(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> + <expr2str(rhs)>";
+	    case subt(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> - <expr2str(rhs)>";
+	    
+	    case gt(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> \> <expr2str(rhs)>";
+	    case ge(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> \>= <expr2str(rhs)>";
+	    case lt(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> \< <expr2str(rhs)>";
+	    case le(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> \>= <expr2str(rhs)>";
+	    
+	    
+	    case eq(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> == <expr2str(rhs)>";
+	    case neq(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> != <expr2str(rhs)>";
+	    
+	    case and(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> && <expr2str(rhs)>";
+	    case or(AExpr lhs, AExpr rhs): return "<expr2str(lhs)> || <expr2str(rhs)>";    
+	}
+}
+
+// Guarded every op with parentheses
+str expr2jsexpr(AExpr e) {
+	switch(e) {
+		case ref(id(str s)): return "<s>";
+		case \bool(bool b): return "<b>";
+		case \str(str s): return "\"<s>\"";
+		case \int(int i): return "<i>";
+		
+		case par(AExpr op):  return "(<expr2str(op)>)";
+	    case uplus(AExpr op): return "(+<expr2str(op)>)";
+	    case uminus(AExpr op): return "(-<expr2str(op)>)";
+	    case logic_not(AExpr op): return "(!<expr2str(op)>)";
+	    
+	    case mult(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> * <expr2str(rhs)>)";
+	    case div(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> / <expr2str(rhs)>)";
+	    case add(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> + <expr2str(rhs)>)";
+	    case subt(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> - <expr2str(rhs)>)";
+	    
+	    case gt(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> \> <expr2str(rhs)>)";
+	    case ge(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> \>= <expr2str(rhs)>)";
+	    case lt(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> \< <expr2str(rhs)>)";
+	    case le(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> \>= <expr2str(rhs)>)";
+	    
+	    
+	    case eq(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> == <expr2str(rhs)>)";
+	    case neq(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> != <expr2str(rhs)>)";
+	    
+	    case and(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> && <expr2str(rhs)>)";
+	    case or(AExpr lhs, AExpr rhs): return "(<expr2str(lhs)> || <expr2str(rhs)>)";    
+	}
+}
+
+
+
+
+
+
+
