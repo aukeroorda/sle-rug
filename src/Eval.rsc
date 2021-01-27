@@ -73,19 +73,19 @@ VEnv eval(AQuestion q, Input inp, VEnv venv) {
   	venv[q.answer_ref.name] = eval(q.answer_value, venv);
   }
   if (q is ifthen) {
-  	if(eval(q.guard, venv)) {
-  		for(AQuestion q_nested := q.then_questions_block.questions) {
+  	if(eval(q.guard, venv).b) {
+  		for(AQuestion q_nested <- q.then_questions_block.questions) {
   			venv = eval(q_nested, inp, venv);
   		}
   	}
   }
   if (q is ifthenelse) {
-  	if(eval(q.guard, venv)) {
-  		for(AQuestion q_nested := q.then_questions_block.questions) {
+  	if(eval(q.guard, venv).b) {
+  		for(AQuestion q_nested <- q.then_questions_block.questions) {
   			venv = eval(q_nested, inp, venv);
   		}
   	} else {
-  		for(AQuestion q_nested := q.else_questions_block.questions) {
+  		for(AQuestion q_nested <- q.else_questions_block.questions) {
   			venv = eval(q_nested, inp, venv);
   		}
   	}
@@ -105,7 +105,7 @@ Value eval(AExpr e, VEnv venv) {
     case uminus(AExpr op): return vint(-1 * eval(op, venv));
     case log_not(AExpr op): return vbool(!eval(op, venv));
     
-    case mult(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv) * eval(rhs, venv));
+    case mult(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv).n * eval(rhs, venv).n);
     case div(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv) / eval(rhs, venv));
     case add(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv) + eval(rhs, venv));
     case subt(AExpr lhs, AExpr rhs): return vint(eval(lhs, venv) - eval(rhs, venv));
