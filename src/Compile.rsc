@@ -86,9 +86,12 @@ str updateForm() =
 	'	var fields = document.getElementsByTagName(\'fieldset\');
 	' 	for (var i = 0; i \< fields.length; i++) {
 	'		var to_eval = fields[i].dataset.guard + \';\';
-	'		fields[i].disabled = eval(to_eval);
+	'		fields[i].disabled = !eval(to_eval);
 	' 	}
 	'}
+	'document.addEventListener(\"DOMContentLoaded\", function(event) {
+	'	update_form();
+	'});
 	'";
 
 str atype2jsdefaultvalue(AType a) {
@@ -133,7 +136,8 @@ HTML5Node ast2html(AQuestion q) {
 			br(),
 			input(
 				atype2html5inputtype(q.answer_type),
-				id(q.answer_ref.name)
+				id(q.answer_ref.name),
+				disabled("")
 			)
 			]);
 	}
