@@ -40,12 +40,14 @@ HTML5Node form2html(AForm f) {
   return html(
   	head(
   		meta(charset("utf-8")),
-		script(src("<f.src[extension="js"].file>"))
+		script(src("<f.src[extension="js"].file>")),
+		style("fieldset[disabled] {   display: none; }")
   	),
   	body(
   		h1(f.form_id),
   		form(
-  			([] | it + ast2html(q) | q <- f.questions)
+  			([] | it + ast2html(q) | q <- f.questions) + 
+  			( input(html5attr("type", "submit")))
   		)
   	)
   );

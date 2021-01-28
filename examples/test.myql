@@ -3,4 +3,12 @@ form TestForm {
   "How much money?" money: integer
   "How much debt?" debt: integer
   "So you have" balance:integer = money - debt
+  
+  if (money - debt < 0) {
+  	"Why are you in debt huh?" why_debt: string
+  	
+  	if (money > 0) {
+  		"Why do you still have money?" why_money: string
+  	}
+  }
 }
