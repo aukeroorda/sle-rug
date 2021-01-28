@@ -26,29 +26,6 @@ TEnv collect(AForm f)
 set[Message] check(AForm f)
  = check(f, collect(f), resolve(f).useDef);
 
-//set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
-//  set[Message] msgs = {};
-//  
-//  for(/AQuestion q := f) {
-//    msgs += check(q, tenv, useDef);
-//  }
-  
-  //for(/AQuestion q := f, q has answer_ref) {
-  //  //for(AQuestion similar <- )
-  //  if(size(useDef[q.answer_ref.src]) > 1) {
-  //    msgs += {error("Duplicate answer variable name with different types", q.answer_ref.src)};
-  //  }
-  //}
-  //
-  //for(/AId id := f){
-  //  if(id.name notin tenv<name>) {
-  //    msgs += {error("Reference to undeclared value", id.src)};
-  //  }
-  //}
-
-//  return msgs; 
-//}
-
 set[Message] check(AForm f, TEnv tenv, UseDef usedef)
  = ( {} | it + check(q, tenv, usedef) | /AQuestion q := f);
 
@@ -58,27 +35,33 @@ set[Message] check(AForm f, TEnv tenv, UseDef usedef)
 set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
 
+  // directly check questions
   if (q is question) {
     msgs += check(q, tenv);
   }
   if (q is computed_question){
     msgs += check(q, tenv);
 
+	// check expressions in the computation
     for(/AExpr e <- q) {
         msgs += check(e, tenv, useDef);
     }
     
+    // ensure type of expression and type of answer match
     Type expr_type = typeOf(q.answer_value, tenv, useDef);
     Type answer_type = typeOfAType(q.answer_type);
     if (expr_type != answer_type) {
       msgs += error("Expression type does not match answer type", q.answer_value.src);
     }
   }
+  
+  // check guard of ifthen(else), and nested questions
   if (q is ifthen || q is ifthenelse) {   
+  	// check nested questions
     for(/AExpr e <- q) {
         msgs += check(e, tenv, useDef);
     }
-    
+    // ensure guard expression results in a boolean
     Type guard_type = typeOf(q.guard, tenv, useDef);
     if (guard_type != tbool()) {
       msgs += error("Guard expression type must be bool", q.guard.src);
@@ -178,6 +161,10 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   return msgs; 
 }
 
+// Not sure if expressions should check whether their argument types
+// are correct before they return their supposed values, i.e.
+// mult(a, b) returns an integer, but if a or b is not of type int,
+// should it return tunknown()?
 Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
   switch (e) {
     case ref(id(_, src = loc u)):

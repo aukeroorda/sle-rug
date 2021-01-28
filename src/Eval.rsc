@@ -27,7 +27,7 @@ Value toVType(AType a) {
 	}
 }
 
-  
+
 // The value environment
 alias VEnv = map[str name, Value \value];
 

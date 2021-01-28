@@ -24,8 +24,10 @@ public loc tax = |project://QL/examples/tax.myql|;
 // test
 public loc tst = |project://QL/examples/test.myql|;
 
-// eval_ input
-Input input_ = input("How much money?", vint(7));
+// tax eval_ input
+//Input tax_input_ = input("Did you sell a house in 2010?", vbool(true));
+Input tax_input_ = input("Private debts for the sold house:", vint(20000));
+
 
 AForm get_ast(loc l)
   = cst2ast(parse(#start[Form], l));
@@ -36,14 +38,27 @@ RefGraph resolve_(loc l) =
 AForm flatten_(loc l) =
 	flatten(get_ast(l));
 	
+//loc selling_price_ref = |project://QL/examples/tax.myql|(443,12,<19,30>,<19,42>);
+//start[Form] rename_(str newName)
+//	= rename(
+//		parse(#start[Form],
+//			  tax
+//		),
+//		selling_price_ref,
+//		newName,
+//		resolve(get_ast(tax)).useDef);
+	
 set[Message] check_(loc l) =
 	check(get_ast(l));
 	
 VEnv eval_(loc l) =
-	eval(get_ast(l), input_, initialEnv(get_ast(l)));
+	eval(get_ast(l), tax_input_, initialEnv(get_ast(l)));
 	
 void compile_(loc l) =
 	compile(get_ast(l));
+	
+void compile_flat_(loc l) =
+	compile_flat(get_ast(l));
 	
 void ide() = main();
 

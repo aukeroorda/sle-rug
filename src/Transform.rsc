@@ -3,6 +3,7 @@ module Transform
 import Syntax;
 import Resolve;
 import AST;
+import CST2AST;
 
 /* 
  * Transforming QL forms
@@ -68,15 +69,6 @@ AForm flatten(AForm f) {
 		case and(x, \bool(true)) => x
 	}
 	
-	// Flatten expressions
-	//f = visit (f) {
-	//	case question(question, answer_ref, answer_type) =>
-	//		ifthen(AExpr(\bool(true)), question, answer, answer_type)
-	//	case ifthen(guard, then_questions_block) =>
-	//		[ifthen(guard, q.question, q.answer_ref, answer_type) | 
-	//			question()]
-	//};
-	
 	// Lastly ensure all top-level questions are if_then_else-guarded questions
 	//f = visit (f) {
 	//	case 
@@ -96,6 +88,7 @@ list[AQuestion] flatten(AQuestion q, AExpr cond) {
 		new_qs += ([] | it + flatten(nested_q, and(cond, q.guard)) | nested_q <- q.then_questions_block.questions);
 	}
 	if (q has else_questions_block) {
+		// Note the logic_not() encapsulating the guard
 		new_qs += ([] | it + flatten(nested_q, and(cond, logic_not(q.guard))) | nested_q <- q.else_questions_block.questions);
 	}
 	
@@ -110,7 +103,30 @@ list[AQuestion] flatten(AQuestion q, AExpr cond) {
  */
  
  start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   return f; 
+ 	// First find the source name of the useOrDef
+ 	// if it is a def, then its already there
+ 	RefGraph rg = resolve(cst2ast(f));
+ 	
+ 	// add the instance we start rename from to set
+ 	set[loc] to_update = {useOrDef};
+ 	
+ 	// find all uses of the name
+ 	if (useOrDef in rg.uses, <useOrDef, loc d> <- rg.useDef) {
+ 		// d is definition
+ 		to_update += {d};
+ 		// add rest of references to d
+ 		to_update += { u | <loc u, d> <- rg.useDef };
+ 	}
+ 	
+ 	if (useOrDef in rg.defs) {
+ 		to_update += { u | <loc u, d> <- rg.useDef };
+ 	}
+ 	
+ 	// rename all uses (include def)
+   return visit(f) {
+   		case Id x => [Id]newName
+   			when x@\loc in to_update
+   }; 
  } 
  
  

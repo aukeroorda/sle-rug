@@ -1,5 +1,6 @@
 module Compile
 
+import Transform;
 import List;
 import AST;
 import Resolve;
@@ -36,6 +37,13 @@ void compile(AForm f) {
   writeFile(f.src[extension="html"].top, toString(form2html(f)));
 }
 
+// Compiles a flattened form (ruins html layout)
+void compile_flat(AForm f) {
+  AForm flat = flatten(f);
+  writeFile(f.src[extension="js"].top, form2js(flat));
+  writeFile(f.src[extension="html"].top, toString(form2flat2html(f)));
+}
+
 HTML5Node form2html(AForm f) {
   return html(
   	head(
@@ -53,6 +61,24 @@ HTML5Node form2html(AForm f) {
   );
 }
 
+// uses flattened form to populate html-form contents
+HTML5Node form2flat2html(AForm f) {
+  return html(
+  	head(
+  		meta(charset("utf-8")),
+		script(src("<f.src[extension="js"].file>")),
+		style("fieldset[disabled] {   display: none; }")
+  	),
+  	body(
+  		h1(f.form_id),
+  		form(
+  			([] | it + ast2html(q) | q <- flatten(f).questions) + 
+  			( input(html5attr("type", "submit")))
+  		)
+  	)
+  );
+}
+
 str form2js(AForm f) {
 	js = "";
 	js += collectVars(f);
@@ -63,6 +89,7 @@ str form2js(AForm f) {
   	return js;
 }
 
+// Collects all identifiers from the form and writes them as global vars in js
 str collectVars(AForm f) {
 	vars = "";
 	for (/AQuestion q := f, q has answer_ref) {
@@ -72,6 +99,7 @@ str collectVars(AForm f) {
 	return vars;
 }
 
+// Set form values to default values using js vars
 str initForm(AForm f) {
 
 	inits = "document.addEventListener(\"DOMContentLoaded\", function(event) {\n";
@@ -82,12 +110,8 @@ str initForm(AForm f) {
 	return inits;
 }
 
+// Updates the computed-question answer values in the form untill it settles
 str updateComputed(AForm f) {
-	//TODO
-	//create function updateCompute in js
-	//knows all values that are compued
-	//set dirty flag is a computed value has changed -> recurse untill it isnt set
-	//re-eval at the end of update_form() call
 	str func = "
 	'function update_computed() {
 	'	var dirty_flag = false;
@@ -119,6 +143,8 @@ str updateComputed(AForm f) {
 	return func;
 }
 
+// member that is updated to represent the change in input value
+// unfortunately it is not .value for input type checkbox
 str atype2htmlvaluefieldmember(AType a) {
 	switch(a) {
 	    case string(): return "value";
@@ -127,6 +153,7 @@ str atype2htmlvaluefieldmember(AType a) {
 	}
 }
 
+// Toggles fieldsets based on the evaluation of their guard attribute
 str updateForm() =
 	"function update_form() {
 	'	var fields = document.getElementsByTagName(\'fieldset\');
