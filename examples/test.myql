@@ -1,12 +1,6 @@
 form TestForm {
   "Is the number between 1 and 10" x_1_10: boolean = true
   "How much money?" money: integer
-  if (x_1_10) { 
-  	"Do you compute?" val : integer = 5 * money
-  	if(x_1_10) {
-  		"Is this flattened?" yesno : boolean
-  	} else {
-  		"Well well well" if_it_isnt_else : boolean = (5 <= 6)
-  	}
-  }
+  "How much debt?" debt: integer
+  "So you have" balance:integer = money - debt
 }

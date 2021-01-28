@@ -56,6 +56,7 @@ str form2js(AForm f) {
 	js += collectVars(f);
 	js += initForm(f);
 	js += updateForm();
+	js += updateComputed(f);
 	
   	return js;
 }
@@ -79,7 +80,50 @@ str initForm(AForm f) {
 	return inits;
 }
 
+str updateComputed(AForm f) {
+	//TODO
+	//create function updateCompute in js
+	//knows all values that are compued
+	//set dirty flag is a computed value has changed -> recurse untill it isnt set
+	//re-eval at the end of update_form() call
+	str func = "
+	'function update_computed() {
+	'	var dirty_flag = false;
+	'	var computed_qs = document.querySelectorAll(\'input[data-computation]\');
+	'
+	'	for(var i = 0; i \< computed_qs.length; i++) {
+	'		var to_eval = computed_qs[i].dataset.computation + \';\';
+	'		if (computed_qs[i].type == \'checkbox\') {
+	'			var old_value = computed_qs[i].checked;
+	'			var new_value = eval(to_eval);
+	'			if (old_value != new_value) {
+	'				dirty_flag = true;
+	'				computed_qs[i].checked = new_value;
+	'			}
+	'		} else {
+	'			var old_value = computed_qs[i].value;
+	'			var new_value = eval(to_eval);
+	'			if (old_value != new_value) {
+	'				dirty_flag = true;
+	'				computed_qs[i].value = new_value;
+	'			}
+	'		}
+	'	}
+	'
+	'	if (dirty_flag) { update_computed(); }
+	'}
+	'";
+	
+	return func;
+}
 
+str atype2htmlvaluefieldmember(AType a) {
+	switch(a) {
+	    case string(): return "value";
+	    case integer(): return "value";
+	    case boolean(): return "checked";
+	}
+}
 
 str updateForm() =
 	"function update_form() {
@@ -88,6 +132,7 @@ str updateForm() =
 	'		var to_eval = fields[i].dataset.guard + \';\';
 	'		fields[i].disabled = !eval(to_eval);
 	' 	}
+	'	update_computed();
 	'}
 	'document.addEventListener(\"DOMContentLoaded\", function(event) {
 	'	update_form();
@@ -137,6 +182,7 @@ HTML5Node ast2html(AQuestion q) {
 			input(
 				atype2html5inputtype(q.answer_type),
 				id(q.answer_ref.name),
+				html5attr("data-computation", expr2jsexpr(q.answer_value)),
 				disabled("")
 			)
 			]);
