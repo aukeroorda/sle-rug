@@ -16,43 +16,42 @@ import Eval;
 import Compile;
 
 // binary
-//loc l = |project://QL/examples/binary.myql|;
+public loc bin = |project://QL/examples/binary.myql|;
 
 // tax
-loc l = |project://QL/examples/tax.myql|;
+public loc tax = |project://QL/examples/tax.myql|;
 
 // test
-//loc l = |project://QL/examples/test.myql|;
+public loc tst = |project://QL/examples/test.myql|;
 
 // eval_ input
 Input input_ = input("How much money?", vint(7));
 
-AForm get_ast()
+AForm get_ast(loc l)
   = cst2ast(parse(#start[Form], l));
 
-RefGraph resolve_() =
-	resolve(get_ast());
+RefGraph resolve_(loc l) =
+	resolve(get_ast(l));
 	
-AForm flatten_() =
-	flatten(get_ast());
+AForm flatten_(loc l) =
+	flatten(get_ast(l));
 	
-set[Message] check_() =
-	check(get_ast());
+set[Message] check_(loc l) =
+	check(get_ast(l));
 	
-VEnv eval_() =
-	eval(get_ast(), input_, initialEnv(get_ast()));
+VEnv eval_(loc l) =
+	eval(get_ast(l), input_, initialEnv(get_ast(l)));
 	
-void compile_() =
-	compile(get_ast());
+void compile_(loc l) =
+	compile(get_ast(l));
 	
 void ide() = main();
 
-void t_resolve() = 
-	text(resolve_());
-void t_flatten() = 
-	text(flatten_());
-void t_eval() =
-	text(eval_());
-
-void t_compile() =
-	text(compile_());
+void t_resolve(loc l) = 
+	text(resolve_(l));
+void t_flatten(loc l) = 
+	text(flatten_( l));
+void t_eval(loc l) =
+	text(eval_( l));
+void t_compile(loc l) =
+	text(compile_(l));
