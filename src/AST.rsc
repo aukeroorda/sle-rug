@@ -47,6 +47,8 @@ data AExpr(loc src = |tmp:///|)
 
 data AId(loc src = |tmp:///|)
   = id(str name);
+  
+anno loc AId@location;
 
 data AType(loc src = |tmp:///|)
   = \string()

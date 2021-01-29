@@ -30,35 +30,6 @@ import CST2AST;
  */
  
 AForm flatten(AForm f) {
-
-	// First resolve all nested ifthen(else) statements
-//	f = outermost visit(f) {
-//		case ifthen(
-//				outer_guard, 
-//				block(
-//					ifthen(
-//						inner_guard,
-//						then_questions_block
-//					)
-//				)
-//			) => ifthen(and(outer_guard, inner_guard), then_questions_block)
-//
-//		case ifthen(
-//				outer_guard,
-//				block(
-//					ifthenelse(
-//						inner_guard,
-//						then_questions_block,
-//						else_questions_block
-//					)
-//				)
-//			) => ifthen(and(outer_guard, inner_guard), then_questions_block) +
-//				 ifthen(not(inner_guard), else_questions_block)
-//				 
-//		//case ifthenelse(outer_guard, outer_block)
-//		
-//	}
-
 	AExpr bool_true = \bool(true);
 	// flatten questions
 	f = form(f.form_id, ([] | it + flatten(q, bool_true) | AQuestion q <- f.questions));
@@ -68,11 +39,6 @@ AForm flatten(AForm f) {
 		case and(\bool(true), x) => x
 		case and(x, \bool(true)) => x
 	}
-	
-	// Lastly ensure all top-level questions are if_then_else-guarded questions
-	//f = visit (f) {
-	//	case 
-	//};
   return f; 
 }
 
@@ -123,11 +89,13 @@ list[AQuestion] flatten(AQuestion q, AExpr cond) {
  	}
  	
  	// rename all uses (include def)
-   return visit(f) {
-   		case Id x => [Id]newName
-   			when x@\loc in to_update
-   }; 
- } 
+	return visit(f) {
+   		case (Question)`<Str question> <Id answer_ref> : <Type answer_type>`
+   			 => (Question)`<Str question> <Id newName> : <Type answer_type>`
+   			when answer_ref@\loc in to_update, newName := [Id]newName
+		
+	}
+}
  
  
  

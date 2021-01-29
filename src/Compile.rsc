@@ -176,6 +176,7 @@ str atype2jsdefaultvalue(AType a) {
 	}
 }
 
+// Different onchange values for different types
 HTML5Attr getUpdatePolicy(AType a, AQuestion q) {
 	switch(a) {
 	    case string(): return onchange("_<q.answer_ref.name> = document.getElementById(\'<q.answer_ref.name>\').value; update_form()");
@@ -223,7 +224,6 @@ HTML5Node ast2html(AQuestion q) {
 		HTML5Node fs_then = fieldset(
 			( legend("then:")) + 
 			( [] | it + ast2html(q) | AQuestion q <- q.then_questions_block.questions) +
-			//( id("<q.guard.src>") ) + 
 			( html5attr("data-guard", expr2jsexpr(q.guard)) )
 		);
 		nodes += fs_then;
@@ -232,6 +232,7 @@ HTML5Node ast2html(AQuestion q) {
 			HTML5Node fs_else = fieldset(
 				( legend("else:")) + 
 				( [] | it + ast2html(q) | AQuestion q <- q.else_questions_block.questions) +
+				// same guard, but encapsulated with logic_not()
 				( html5attr("data-guard", expr2jsexpr(logic_not(q.guard))) )
 			);
 			nodes += fs_else;

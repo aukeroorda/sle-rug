@@ -25,15 +25,6 @@ alias RefGraph = tuple[
 
 RefGraph resolve(AForm f) = <us, ds, us o ds>
   when Use us := uses(f), Def ds := defs(f);
-  
-RefGraph resolve(AForm f) {
-	definitions = gefs(f);
-	references = uses(f);
-	
-	referenced = {ref | ref <- references, ref.def in definitions<def>};
-	
-	return <referenced, definitions, referenced o definitions>;
-}
 
 // Use is set of <loc use, str name>
 Use uses(AForm f) {

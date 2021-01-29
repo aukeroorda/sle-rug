@@ -38,16 +38,6 @@ RefGraph resolve_(loc l) =
 AForm flatten_(loc l) =
 	flatten(get_ast(l));
 	
-//loc selling_price_ref = |project://QL/examples/tax.myql|(443,12,<19,30>,<19,42>);
-//start[Form] rename_(str newName)
-//	= rename(
-//		parse(#start[Form],
-//			  tax
-//		),
-//		selling_price_ref,
-//		newName,
-//		resolve(get_ast(tax)).useDef);
-	
 set[Message] check_(loc l) =
 	check(get_ast(l));
 	

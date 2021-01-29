@@ -117,9 +117,9 @@ Value eval(AExpr e, VEnv venv) {
     
     case eq(AExpr lhs, AExpr rhs): 
     	return switch(eval(lhs, venv)) {
-    			case \str: vbool(eval(lhs, venv).s == eval(rhs, venv).s);
-    			case \int: vbool(eval(lhs, venv).n == eval(rhs, venv).n);
-    			case \bool: vbool(eval(lhs, venv).b == eval(rhs, venv).b);
+    			case \vstr: vbool(eval(lhs, venv).s == eval(rhs, venv).s);
+    			case \vint: vbool(eval(lhs, venv).n == eval(rhs, venv).n);
+    			case \vbool: vbool(eval(lhs, venv).b == eval(rhs, venv).b);
     		}
     case neq(AExpr lhs, AExpr rhs): return logic_not(eq(lhs, rhs));
     
