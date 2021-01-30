@@ -40,7 +40,11 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
-  return (); 
+	for(AQuestion q <- f.questions) {
+		venv = eval(q, inp, venv);
+	}
+	
+	return venv;
 }
 
 VEnv eval(AQuestion q, Input inp, VEnv venv) {

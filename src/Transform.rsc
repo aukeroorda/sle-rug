@@ -3,6 +3,8 @@ module Transform
 import Syntax;
 import Resolve;
 import AST;
+import CST2AST;
+import ParseTree;
 
 /* 
  * Transforming QL forms
@@ -40,8 +42,34 @@ AForm flatten(AForm f) {
  */
  
  start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   return f; 
- } 
+ 	// First find the source name of the useOrDef
+ 	// if it is a def, then its already there
+ 	RefGraph rg = resolve(cst2ast(f));
+ 	
+ 	// add the instance we start rename from to set
+ 	set[loc] to_update = {useOrDef};
+ 	
+ 	// find all uses of the name
+ 	if (useOrDef in rg.uses, <useOrDef, loc d> <- rg.useDef) {
+ 		// d is definition
+ 		to_update += {d};
+ 		// add rest of references to d
+ 		to_update += { u | <loc u, d> <- rg.useDef };
+ 	}
+ 	
+ 	if (useOrDef in rg.defs) {
+ 		to_update += { u | <loc u, d> <- rg.useDef };
+ 	}
+ 	
+ 	
+ 	// rename all uses (include def)
+	return visit(f) {
+   		case (Question)`<Str question> <Id answer_ref> : <Type answer_type>`
+   			 => (Question)`<Str question> <Id newName> : <Type answer_type>`
+   			when answer_ref@\loc in to_update, newName := [Id]newName
+		
+	}
+}
  
  
  
